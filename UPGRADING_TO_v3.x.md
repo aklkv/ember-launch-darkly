@@ -59,8 +59,12 @@ The `variation` template helper no longer accepts named arguments. Use positiona
 
 **After (v3):**
 
-```hbs
-{{variation "my-flag" "fallback"}}
+```gjs
+import { variation } from 'ember-launch-darkly';
+
+<template>
+  {{variation "my-flag" "fallback"}}
+</template>
 ```
 
 The JavaScript API is unchanged:

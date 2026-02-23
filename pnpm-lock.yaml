@@ -12,13 +12,13 @@ importers:
         specifier: ^1.10.2
         version: 1.10.2
       decorator-transforms:
-        specifier: ^2.2.2
+        specifier: ^2.3.1
         version: 2.3.1(@babel/core@7.29.0)
       ember-window-mock:
         specifier: ^1.0.2
         version: 1.0.2(@babel/core@7.29.0)(@glint/template@1.7.4)
       launchdarkly-js-client-sdk:
-        specifier: ^3.1.1
+        specifier: ^3.9.0
         version: 3.9.0
     devDependencies:
       '@babel/core':

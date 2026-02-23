@@ -54,14 +54,15 @@
     "lint:publish": "pnpm build && publint run --level error",
     "lint:types": "ember-tsc --noEmit",
     "prepack": "rollup --config",
+    "prepare": "rollup --config",
     "start": "vite dev",
     "test": "vite build --mode=development --out-dir dist-tests && testem --file testem.cjs ci --port 0"
   },
   "dependencies": {
     "@embroider/addon-shim": "^1.10.2",
-    "decorator-transforms": "^2.2.2",
+    "decorator-transforms": "^2.3.1",
     "ember-window-mock": "^1.0.2",
-    "launchdarkly-js-client-sdk": "^3.1.1"
+    "launchdarkly-js-client-sdk": "^3.9.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
@@ -119,6 +120,10 @@
   "packageManager": "pnpm@10.30.1+sha512.3590e550d5384caa39bd5c7c739f72270234b2f6059e13018f975c313b1eb9fefcc09714048765d4d9efe961382c312e624572c0420762bdc5d5940cdf9be73a",
   "ember": {
     "edition": "octane"
+  },
+  "engines": {
+    "node": ">= 22.0",
+    "pnpm": ">= 10"
   },
   "ember-addon": {
     "version": 2,

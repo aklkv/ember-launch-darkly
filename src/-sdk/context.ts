@@ -1,4 +1,3 @@
-import { isNone } from '@ember/utils';
 import { TrackedMap } from 'tracked-built-ins';
 import window from 'ember-window-mock';
 import type {
@@ -88,7 +87,7 @@ class Context<ELDFlagSet extends LDFlagSet> {
   }
 
   get<T>(key: keyof ELDFlagSet, defaultValue?: T | null): T {
-    if (!this._flags.has(key) && !isNone(defaultValue)) {
+    if (!this._flags.has(key) && defaultValue != null) {
       return defaultValue;
     }
 
@@ -114,7 +113,7 @@ class Context<ELDFlagSet extends LDFlagSet> {
   }
 
   get isLocal() {
-    return isNone(this.client);
+    return this.client == null;
   }
 
   get persisted(): ELDFlagSet | undefined {

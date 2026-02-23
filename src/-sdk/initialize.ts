@@ -1,4 +1,3 @@
-import { isNone } from '@ember/utils';
 import { warn } from '@ember/debug';
 
 import * as LDClient from 'launchdarkly-js-client-sdk';
@@ -69,7 +68,7 @@ export function shouldUpdateFlag(
   }
 
   if (streamingConfig && typeof streamingConfig === 'object') {
-    if (!isNone(streamingConfig.allExcept)) {
+    if (streamingConfig.allExcept != null) {
       if (Array.isArray(streamingConfig.allExcept)) {
         return !streamingConfig.allExcept.includes(key);
       }
@@ -86,13 +85,8 @@ export function shouldUpdateFlag(
 }
 
 export async function initialize(options: InitializeOptions) {
-  try {
-    if (getCurrentContext()) {
-      return;
-    }
-  } catch {
-    // `initialize` has not been run yet and so the current context doesn't
-    // exist. Let's go ahead and create one.
+  if (getCurrentContext()) {
+    return;
   }
 
   const {
@@ -130,7 +124,7 @@ export async function initialize(options: InitializeOptions) {
     ...ldOptions,
   };
 
-  if (bootstrap === 'localFlags' && !isNone(localFlags)) {
+  if (bootstrap === 'localFlags' && localFlags != null) {
     ldClientOptions.bootstrap = localFlags;
   } else if (bootstrap && bootstrap !== 'localFlags') {
     ldClientOptions.bootstrap = bootstrap;
@@ -138,13 +132,27 @@ export async function initialize(options: InitializeOptions) {
 
   const client = LDClient.initialize(clientSideId, user, ldClientOptions);
 
-  await client.waitForInitialization(timeout);
+  try {
+    await client.waitForInitialization(timeout);
+  } catch (error) {
+    warn(
+      `LaunchDarkly SDK failed to initialize within ${timeout}s. Using ${bootstrap === 'localFlags' ? 'bootstrap' : 'default'} flag values. Error: ${String(error)}`,
+      false,
+      { id: 'ember-launch-darkly.initialization-timeout' },
+    );
+  }
 
-  client.on('change', (updates: Record<string, unknown>) => {
+  client.on('change', (updates: LDClient.LDFlagChangeset) => {
     const context = getCurrentContext();
+
+    if (!context) {
+      return;
+    }
+
     const flagsToUpdate: Record<string, unknown> = {};
-    // @ts-expect-error TODO: fix this type error
-    for (const [key, { current }] of Object.entries(updates)) {
+
+    for (const [key, change] of Object.entries(updates)) {
+      const current = (change as { current: unknown }).current;
       if (shouldUpdateFlag(key, streamingFlags)) {
         flagsToUpdate[key] = current;
       }

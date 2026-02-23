@@ -6,7 +6,15 @@ packages:
 
 # we don't want addons to be bad citizens of the ecosystem
 autoInstallPeers: false
-
-# we want true isolation,
-# if a dependency is not declared, we want an error
 resolvePeersFromWorkspaceRoot: false
+
+# Optimizations
+dedupePeerDependents: true
+
+# Compatibility
+publicHoistPattern:
+  - ember-source
+resolutionMode: highest
+
+# Always verify deps before running any scripts
+verifyDepsBeforeRun: install

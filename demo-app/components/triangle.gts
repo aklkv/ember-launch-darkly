@@ -1,3 +1,5 @@
+import { htmlSafe } from '@ember/template';
+
 import type { TOC } from '@ember/component/template-only';
 
 interface TriangleSignature {
@@ -7,8 +9,10 @@ interface TriangleSignature {
   };
 }
 
-function innerStyle(color: string): string {
-  return `border-color: ${color} transparent; border-style: solid; border-width: 0px 120px 207.84px 120px; height: 0px; width: 0px; position: absolute; left: -120px; top: 5px;`;
+function innerStyle(color: string) {
+  return htmlSafe(
+    `border-color: ${color} transparent; border-style: solid; border-width: 0px 120px 207.84px 120px; height: 0px; width: 0px; position: absolute; left: -120px; top: 5px;`,
+  );
 }
 
 const Triangle: TOC<TriangleSignature> = <template>

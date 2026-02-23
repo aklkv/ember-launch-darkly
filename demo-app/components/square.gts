@@ -1,3 +1,5 @@
+import { htmlSafe } from '@ember/template';
+
 import type { TOC } from '@ember/component/template-only';
 
 interface SquareSignature {
@@ -7,8 +9,10 @@ interface SquareSignature {
   };
 }
 
-function style(color: string): string {
-  return `width: 200px; height: 200px; border: 2px solid black; background-color: ${color};`;
+function style(color: string) {
+  return htmlSafe(
+    `width: 200px; height: 200px; border: 2px solid black; background-color: ${color};`,
+  );
 }
 
 const Square: TOC<SquareSignature> = <template>

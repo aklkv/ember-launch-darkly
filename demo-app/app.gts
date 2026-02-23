@@ -11,6 +11,7 @@ export class App extends EmberApp {
   modules = {
     './router': Router,
     './services/page-title': PageTitleService,
+    ...import.meta.glob('./routes/**/*', { eager: true }),
     ...import.meta.glob('./services/**/*', { eager: true }),
     ...import.meta.glob('./templates/**/*', { eager: true }),
   };
