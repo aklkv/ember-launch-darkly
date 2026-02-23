@@ -33,12 +33,15 @@ This addon wraps the [Launch Darkly](https://launchdarkly.com/) feature flagging
     - [variation (template helper)](#variation-template-helper)
     - [variation (javascript helper)](#variation-javascript-helper)
   - [Local feature flags](#local-feature-flags)
+    - [Persisting local feature flags](#persisting-local-feature-flags)
   - [Streaming feature flags](#streaming-feature-flags)
   - [Content Security Policy](#content-security-policy)
   - [Test helpers](#test-helpers)
     - [Acceptance tests](#acceptance-tests)
     - [Integration tests](#integration-tests)
   - [Upgrading to v2.0](#upgrading-to-v20)
+  - [Upgrading to v3.0](#upgrading-to-v30)
+    - [Deprecations](#deprecations)
 
 ## Installation
 
@@ -123,19 +126,14 @@ This function's API mirrors that of the Launch Darkly client, [so see the Launch
 
 import Route from '@ember/routing/route';
 
-import config from 'my-app/config/environment';
-
 import { initialize } from 'ember-launch-darkly';
 
 export default class ApplicationRoute extends Route {
   async model() {
-    let user = {
-      key: 'aa0ceb',
-    };
-
-    let { clientSideId, ...rest } = config;
-
-    return await initialize(clientSideId, user, rest);
+    return await initialize({
+      clientSideId: 'your-client-side-id',
+      user: { key: 'aa0ceb' },
+    });
   }
 }
 ```
@@ -364,8 +362,17 @@ module.exports = function (environment) {
 
 ### Acceptance tests
 
-Add the `setupLaunchDarkly` hook to the top of your test file. This will ensure that Launch Darkly uses defaults your feature flags to
-`false` instead of using what is defined in the `localFlags` config. This allows your tests to start off in a known default state.
+Add the `setupLaunchDarkly` hook to the top of your test file. Pass the flags your tests depend on via the `flags` option — as an array (all default to `false`) or as an object with initial values.
+
+```js
+// As an array — all flags default to false
+setupLaunchDarkly(hooks, { flags: ['new-pricing-plan', 'new-homepage'] });
+
+// As an object — flags are initialized with the provided values
+setupLaunchDarkly(hooks, {
+  flags: { 'new-pricing-plan': 'plan-a', 'new-homepage': true },
+});
+```
 
 ```js
 import { module, test } from 'qunit';
@@ -376,7 +383,7 @@ import { setupLaunchDarkly } from 'ember-launch-darkly/test-support';
 
 module('Acceptance | Homepage', function (hooks) {
   setupApplicationTest(hooks);
-  setupLaunchDarkly(hooks);
+  setupLaunchDarkly(hooks, { flags: ['new-pricing-plan'] });
 
   test('links go to the new homepage', async function (assert) {
     await visit('/');
@@ -396,7 +403,7 @@ ember-launch-darkly provides a test helper, `withVariation`, to make it easy to 
 ```js
 module('Acceptance | Homepage', function (hooks) {
   setupApplicationTest(hooks);
-  setupLaunchDarkly(hooks);
+  setupLaunchDarkly(hooks, { flags: ['new-pricing-plan'] });
 
   test('links go to the new homepage', async function (assert) {
     await this.withVariation('new-pricing-plan', 'plan-a');
@@ -427,7 +434,7 @@ import { setupLaunchDarkly } from 'ember-launch-darkly/test-support';
 
 module('Integration | Component | foo', function (hooks) {
   setupRenderingTest(hooks);
-  setupLaunchDarkly(hooks);
+  setupLaunchDarkly(hooks, { flags: ['new-pricing-page'] });
 
   test('new pricing', async function (assert) {
     await render(hbs`
