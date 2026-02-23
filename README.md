@@ -492,7 +492,7 @@ module('Integration | Component | foo', function (hooks) {
 
 ## Upgrading
 
-- **From v5.x to v6.x**: See [UPGRADING_TO_v3.x.md](UPGRADING_TO_v3.x.md) _(v6 is the npm version; the addon API version is v3)_
+- **From v5.x to v6.x**: See [UPGRADING_TO_v6.x.md](UPGRADING_TO_v6.x.md)
 - **From v1.x to v2.x**: See [UPGRADING_TO_v2.x.md](UPGRADING_TO_v2.x.md)
 
 <p align="center"><sub>Made with :heart: by The Ember Launch Darkly Team</sub></p>

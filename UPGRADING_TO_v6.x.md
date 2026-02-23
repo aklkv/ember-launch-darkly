@@ -1,12 +1,12 @@
-# Upgrading to v3.x
+# Upgrading to v6.x
 
-This documents the breaking changes introduced in ember-launch-darkly v3.
+This documents the breaking changes introduced in ember-launch-darkly v6.
 
 ## `initialize()` now accepts a single options object
 
 The `initialize` function signature has changed from three positional arguments to a single options object.
 
-**Before (v2):**
+**Before (v5):**
 
 ```js
 import { initialize } from 'ember-launch-darkly';
@@ -19,7 +19,7 @@ await initialize(clientSideId, user, {
 });
 ```
 
-**After (v3):**
+**After (v6):**
 
 ```js
 import { initialize } from 'ember-launch-darkly';
@@ -51,13 +51,13 @@ await initialize({
 
 The `variation` template helper no longer accepts named arguments. Use positional arguments for the flag key and default value.
 
-**Before (v2):**
+**Before (v5):**
 
 ```hbs
 {{variation "my-flag" default="fallback"}}
 ```
 
-**After (v3):**
+**After (v6):**
 
 ```gjs
 import { variation } from 'ember-launch-darkly';
@@ -87,14 +87,14 @@ ember-launch-darkly is now a V2 addon. This means:
 
 The test helper no longer looks up `config:environment` to discover flag keys. Instead, pass flag keys directly as the second argument.
 
-**Before (v2):**
+**Before (v5):**
 
 ```js
 // relied on config/environment.js having launchDarkly.localFlags
 setupLaunchDarkly(hooks);
 ```
 
-**After (v3):**
+**After (v6):**
 
 ```js
 // As an array — all flags default to false
