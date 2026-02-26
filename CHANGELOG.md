@@ -1,5 +1,15 @@
 # Changelog
 
+## Release (2026-02-26)
+
+
+
+#### :house: Internal
+* [#705](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/705) fix: regenerate release-plan ([@aklkv](https://github.com/aklkv))
+
+#### Committers: 1
+- Alexey Kulakov ([@aklkv](https://github.com/aklkv))
+
 ## Release (2026-02-23)
 
 * ember-launch-darkly 5.3.0 (minor)
