@@ -1,6 +1,10 @@
 import { babel } from '@rollup/plugin-babel';
+import replace from '@rollup/plugin-replace';
 import copy from 'rollup-plugin-copy';
 import { Addon } from '@embroider/addon-dev/rollup';
+import { readFileSync } from 'node:fs';
+
+const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 
 const addon = new Addon({
   srcDir: 'src',
@@ -36,6 +40,13 @@ export default {
     // `dependencies` and `peerDependencies` as well as standard Ember-provided
     // package names.
     addon.dependencies(),
+
+    // Inject the addon version at build time so initialize() can report it to
+    // LaunchDarkly via `wrapperVersion` without a separate version file.
+    replace({
+      __ADDON_VERSION__: JSON.stringify(pkg.version),
+      preventAssignment: true,
+    }),
 
     // This babel config should *not* apply presets or compile away ES modules.
     // It exists only to provide development niceties for you, like automatic

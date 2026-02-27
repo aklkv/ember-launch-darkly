@@ -3,7 +3,15 @@ import { warn } from '@ember/debug';
 
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
-import Context, { getCurrentContext, setCurrentContext } from './context.ts';
+import Context, {
+  getCurrentContext,
+  setCurrentContext,
+  type InitStatus,
+  type OnStatusChange,
+  type OnError,
+} from './context.ts';
+
+declare const __ADDON_VERSION__: string;
 
 type StreamingConfig = { allExcept?: Array<string>; [key: string]: unknown };
 
@@ -23,6 +31,67 @@ export interface EmberLaunchDarklyOptions
    * @default 5
    */
   timeout?: number;
+
+  /**
+   * Callback invoked when the initialization status changes.
+   *
+   * Most useful for reacting to post-init **recovery**: when the LD SDK
+   * reconnects after a failed initialization, the callback fires with
+   * `('initialized', 'failed')`.
+   *
+   * @example
+   * ```ts
+   * await initialize(clientSideId, user, {
+   *   onStatusChange(newStatus, previousStatus) {
+   *     if (newStatus === 'initialized' && previousStatus === 'failed') {
+   *       console.log('LaunchDarkly recovered!');
+   *     }
+   *   },
+   * });
+   * ```
+   */
+  onStatusChange?: OnStatusChange;
+
+  /**
+   * Callback invoked when the LD SDK emits a runtime error (e.g. stream
+   * disconnection, network failure).
+   *
+   * If not provided, errors are logged via `@ember/debug`'s `warn()`. The
+   * most recent error is always available on `context.lastError`.
+   */
+  onError?: OnError;
+}
+
+/**
+ * Result returned by `initialize()`.
+ *
+ * Consumers can inspect this to decide how to handle initialization failures
+ * without relying on try/catch.
+ *
+ * @example
+ * ```ts
+ * const result = await initialize(clientSideId, user, {
+ *   mode: 'remote',
+ *   timeout: 5,
+ * });
+ *
+ * if (!result.isOk) {
+ *   console.error('LD init failed:', result.error);
+ * }
+ * ```
+ */
+export interface InitializeResult {
+  /** Whether initialization completed successfully (`true` for both remote success and local mode). */
+  isOk: boolean;
+
+  /** How initialization completed: `'initialized'`, `'failed'`, or `'local'`. */
+  status: InitStatus;
+
+  /** The error from `waitForInitialization()` if it failed, otherwise `undefined`. */
+  error?: unknown;
+
+  /** The LaunchDarkly context. Use this to access reactive state, SDK passthroughs, etc. */
+  context: Context<Record<string, unknown>>;
 }
 
 export function shouldUpdateFlag(
@@ -54,10 +123,16 @@ export async function initialize(
   clientSideId: string,
   user = {},
   options: EmberLaunchDarklyOptions = {},
-) {
+): Promise<InitializeResult> {
   try {
     if (getCurrentContext()) {
-      return;
+      const context = getCurrentContext()!;
+      return {
+        isOk: context.initSucceeded,
+        status: context.initStatus,
+        error: context.initError,
+        context,
+      };
     }
   } catch {
     // `initialize` has not been run yet and so the current context doesn't
@@ -68,9 +143,11 @@ export async function initialize(
     streamingFlags = false,
     localFlags = {},
     timeout = 5,
+    mode: initialMode = 'local',
     ...rest
   } = options;
-  let { mode = 'local' } = options;
+  const { onStatusChange, onError } = options;
+  let mode = initialMode;
 
   if (!['local', 'remote'].includes(mode)) {
     warn(
@@ -83,14 +160,22 @@ export async function initialize(
   }
 
   if (mode === 'local') {
-    const context = new Context(localFlags);
+    const context = new Context({
+      flags: localFlags,
+      initStatus: 'local',
+      onStatusChange,
+      onError,
+    });
     setCurrentContext(context);
 
-    return;
+    return { isOk: true, status: 'local', context };
   }
 
   options = {
     sendEventsOnlyForVariation: true,
+    wrapperName: 'ember-launch-darkly',
+    wrapperVersion:
+      typeof __ADDON_VERSION__ !== 'undefined' ? __ADDON_VERSION__ : undefined,
     ...rest,
   };
 
@@ -104,9 +189,15 @@ export async function initialize(
     options as LDClient.LDOptions,
   );
 
+  let initStatus: InitStatus = 'initialized';
+  let initError: unknown;
+
   try {
     await client.waitForInitialization(timeout);
   } catch (error) {
+    initStatus = 'failed';
+    initError = error;
+
     warn(
       `LaunchDarkly SDK failed to initialize within ${String(timeout)}s. Using ${options.bootstrap ? 'bootstrap' : 'default'} flag values. Error: ${String(error)}`,
       false,
@@ -114,11 +205,27 @@ export async function initialize(
     );
   }
 
+  client.on('error', (error: Error) => {
+    const context = getCurrentContext();
+
+    if (!context) {
+      return;
+    }
+
+    context.handleError(error);
+  });
+
   client.on('change', (updates: Record<string, unknown>) => {
     const context = getCurrentContext();
 
     if (!context) {
       return;
+    }
+
+    // If we receive flag changes after a failed init, the SDK has recovered.
+    // Transition to 'initialized' so the app can react.
+    if (context.initStatus === 'failed') {
+      context.transitionStatus('initialized');
     }
 
     const flagsToUpdate: Record<string, unknown> = {};
@@ -134,7 +241,21 @@ export async function initialize(
 
   const flags = client.allFlags();
 
-  const context = new Context(flags, client);
+  const context = new Context({
+    flags,
+    client,
+    initStatus,
+    initError,
+    onStatusChange,
+    onError,
+  });
 
   setCurrentContext(context);
+
+  return {
+    isOk: initStatus === 'initialized',
+    status: initStatus,
+    error: initError,
+    context,
+  };
 }
