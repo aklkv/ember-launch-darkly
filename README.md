@@ -131,12 +131,17 @@ export default class ApplicationRoute extends Route {
 
     if (!isOk) {
       console.warn('LaunchDarkly failed to initialize:', error);
-      // The app continues with default/bootstrap flag values.
-      // context is still usable.
-    }
 
-    // Store the context in a service if you need it elsewhere:
-    // this.ldService.context = context;
+      // Option A: Continue with default/bootstrap flag values.
+      // context is still usable — flags will update if the SDK recovers.
+
+      // Option B: Tear down and fall back to local mode.
+      await context.destroy({ force: true });
+      await initialize(clientSideId, user, {
+        mode: 'local',
+        localFlags: DEFAULT_FLAGS,
+      });
+    }
   }
 }
 ```
@@ -271,6 +276,13 @@ await context.flush();
 
 // Shut down the client and release resources
 await context.close();
+
+// Force-close without waiting for flush (useful when endpoint is unresponsive)
+await context.close({ force: true });
+
+// Shut down AND remove the context from global state, allowing re-initialization
+await context.destroy();
+await context.destroy({ force: true }); // force variant
 
 // Direct access to the LDClient for anything else
 context.client?.on('change:my-flag', () => { /* ... */ });

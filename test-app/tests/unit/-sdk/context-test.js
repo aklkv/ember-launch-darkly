@@ -2,7 +2,11 @@ import { module, test } from 'qunit';
 import window from 'ember-window-mock';
 import { setupWindowMock } from 'ember-window-mock/test-support';
 
-import Context, { setPersistedFlags } from 'ember-launch-darkly/-sdk/context';
+import Context, {
+  setCurrentContext,
+  getCurrentContext,
+  setPersistedFlags,
+} from 'ember-launch-darkly/-sdk/context';
 
 module('Unit | SDK | Context', function (hooks) {
   setupWindowMock(hooks);
@@ -380,6 +384,65 @@ module('Unit | SDK | Context', function (hooks) {
       let context = new Context({ flags: {} });
       await context.flush(); // should not throw
       assert.ok(true, 'no error thrown in local mode');
+    });
+
+    test('close with force does not await client.close()', async function (assert) {
+      assert.expect(1);
+
+      let client = {
+        close() {
+          assert.ok(true, 'client.close() called');
+          // Simulate a hanging flush — returns a promise that never resolves
+          return new Promise(() => {});
+        },
+      };
+
+      let context = new Context({ flags: {}, client });
+      // force: true should return immediately, not hang
+      await context.close({ force: true });
+    });
+
+    test('destroy closes client and removes current context', async function (assert) {
+      assert.expect(3);
+
+      let client = {
+        close() {
+          assert.ok(true, 'client.close() called');
+          return Promise.resolve();
+        },
+      };
+
+      let context = new Context({ flags: { flag: true }, client });
+      setCurrentContext(context);
+
+      assert.ok(getCurrentContext(), 'context is set before destroy');
+
+      await context.destroy();
+
+      assert.strictEqual(
+        getCurrentContext(),
+        null,
+        'context removed after destroy',
+      );
+    });
+
+    test('destroy with force does not hang', async function (assert) {
+      let client = {
+        close() {
+          return new Promise(() => {}); // never resolves
+        },
+      };
+
+      let context = new Context({ flags: {}, client });
+      setCurrentContext(context);
+
+      await context.destroy({ force: true });
+
+      assert.strictEqual(
+        getCurrentContext(),
+        null,
+        'context removed after force destroy',
+      );
     });
   });
 });

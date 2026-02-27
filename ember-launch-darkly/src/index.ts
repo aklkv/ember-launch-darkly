@@ -1,13 +1,16 @@
 export {
   Context,
   getCurrentContext,
+  removeCurrentContext,
   identify,
   initialize,
   variation,
-  type ContextOptions,
-  type IdentifyResult,
-  type InitializeResult,
-  type InitStatus,
-  type OnError,
-  type OnStatusChange,
+} from './-sdk/index.ts';
+export type {
+  ContextOptions,
+  IdentifyResult,
+  InitializeResult,
+  InitStatus,
+  OnError,
+  OnStatusChange,
 } from './-sdk/index.ts';

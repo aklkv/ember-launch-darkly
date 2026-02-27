@@ -1,14 +1,14 @@
 import type ApplicationInstance from '@ember/application/instance';
-import { settled, type TestContext } from '@ember/test-helpers';
+import { settled } from '@ember/test-helpers';
+import type { TestContext } from '@ember/test-helpers';
 import type { setupTest } from 'ember-qunit';
 
 import {
   default as Context,
   getCurrentContext,
   setCurrentContext,
-  removeCurrentContext,
-  type InitStatus,
 } from '../-sdk/context.ts';
+import type { InitStatus } from '../-sdk/context.ts';
 import type { EmberLaunchDarklyOptions } from '../-sdk/initialize.ts';
 
 type NestedHooks = Parameters<typeof setupTest>[0];
@@ -89,10 +89,9 @@ export default function setupLaunchDarkly(hooks: NestedHooks) {
   hooks.afterEach(async function (this: LDTestContext) {
     const context = getCurrentContext();
 
-    await context?.close();
+    await context?.destroy();
     await settled();
     delete this.withVariation;
     delete this.withInitStatus;
-    removeCurrentContext();
   });
 }

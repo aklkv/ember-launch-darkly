@@ -298,11 +298,47 @@ class Context<ELDFlagSet extends LDFlagSet> {
   /**
    * Shut down the LD client, release resources, and flush pending events.
    *
+   * When `force` is `true`, the client is closed without waiting for the
+   * pending event flush to complete. This is useful when the LD endpoint
+   * is unresponsive and `await close()` would hang.
+   *
    * After calling this, the context should not be used. Typically called
    * during application teardown or in test cleanup.
    */
-  async close(): Promise<void> {
-    await this._client?.close();
+  async close({ force = false }: { force?: boolean } = {}): Promise<void> {
+    if (!this._client) {
+      return;
+    }
+
+    if (force) {
+      // Fire-and-forget — don't await the flush that close() triggers.
+      void this._client.close();
+    } else {
+      await this._client.close();
+    }
+  }
+
+  /**
+   * Shut down the LD client and remove this context from the global state,
+   * allowing `initialize()` to be called again.
+   *
+   * This is the recommended way to handle a failed initialization when you
+   * want to fall back to local mode:
+   *
+   * ```ts
+   * const result = await initialize(clientSideId, user, options);
+   * if (!result.isOk) {
+   *   await result.context.destroy();
+   *   await initialize(clientSideId, user, { mode: 'local', localFlags: DEFAULTS });
+   * }
+   * ```
+   *
+   * Pass `{ force: true }` when the endpoint is unresponsive to avoid
+   * hanging on the pending flush.
+   */
+  async destroy({ force = false }: { force?: boolean } = {}): Promise<void> {
+    await this.close({ force });
+    removeCurrentContext();
   }
 
   get persisted(): ELDFlagSet | undefined {

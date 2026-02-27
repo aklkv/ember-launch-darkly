@@ -3,20 +3,17 @@ import { warn } from '@ember/debug';
 
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
-import Context, {
-  getCurrentContext,
-  setCurrentContext,
-  type InitStatus,
-  type OnStatusChange,
-  type OnError,
-} from './context.ts';
+import Context, { getCurrentContext, setCurrentContext } from './context.ts';
+import type { InitStatus, OnStatusChange, OnError } from './context.ts';
 
 declare const __ADDON_VERSION__: string;
 
 type StreamingConfig = { allExcept?: Array<string>; [key: string]: unknown };
 
-export interface EmberLaunchDarklyOptions
-  extends Omit<LDClient.LDOptions, 'bootstrap'> {
+export interface EmberLaunchDarklyOptions extends Omit<
+  LDClient.LDOptions,
+  'bootstrap'
+> {
   bootstrap?: 'localFlags' | LDClient.LDOptions['bootstrap'];
   localFlags?: Record<string, unknown>;
   mode?: string;
@@ -144,9 +141,10 @@ export async function initialize(
     localFlags = {},
     timeout = 5,
     mode: initialMode = 'local',
+    onStatusChange,
+    onError,
     ...rest
   } = options;
-  const { onStatusChange, onError } = options;
   let mode = initialMode;
 
   if (!['local', 'remote'].includes(mode)) {
@@ -205,23 +203,28 @@ export async function initialize(
     );
   }
 
+  const flags = client.allFlags();
+
+  const context = new Context({
+    flags,
+    client,
+    initStatus,
+    initError,
+    onStatusChange,
+    onError,
+  });
+
+  // Set context globally *before* registering event handlers so that
+  // `getCurrentContext()` is available immediately — including when init
+  // failed. This prevents a second `initialize()` call from creating a
+  // duplicate client and ensures post-init recovery works automatically.
+  setCurrentContext(context);
+
   client.on('error', (error: Error) => {
-    const context = getCurrentContext();
-
-    if (!context) {
-      return;
-    }
-
     context.handleError(error);
   });
 
   client.on('change', (updates: Record<string, unknown>) => {
-    const context = getCurrentContext();
-
-    if (!context) {
-      return;
-    }
-
     // If we receive flag changes after a failed init, the SDK has recovered.
     // Transition to 'initialized' so the app can react.
     if (context.initStatus === 'failed') {
@@ -238,19 +241,6 @@ export async function initialize(
 
     context.updateFlags(flagsToUpdate);
   });
-
-  const flags = client.allFlags();
-
-  const context = new Context({
-    flags,
-    client,
-    initStatus,
-    initError,
-    onStatusChange,
-    onError,
-  });
-
-  setCurrentContext(context);
 
   return {
     isOk: initStatus === 'initialized',

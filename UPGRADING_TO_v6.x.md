@@ -211,6 +211,13 @@ await context.flush();
 
 // Shut down the client
 await context.close();
+
+// Force-close without waiting for flush (when endpoint is unresponsive)
+await context.close({ force: true });
+
+// Close AND remove from global state, allowing re-initialization
+await context.destroy();
+await context.destroy({ force: true });
 ```
 
 ### Direct SDK access
@@ -283,4 +290,5 @@ From `'ember-launch-darkly/test-support'`:
 
 | Export | Kind | Description |
 |---|---|---|
+| `removeCurrentContext` | function | Remove the global context (prefer `context.destroy()` instead) |
 | `setupLaunchDarkly` | function | Test helper — sets up context, provides `withVariation` and `withInitStatus` |

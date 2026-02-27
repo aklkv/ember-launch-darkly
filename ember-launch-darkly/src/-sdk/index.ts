@@ -1,11 +1,16 @@
-export { initialize, type InitializeResult } from './initialize.ts';
-export { identify, type IdentifyResult } from './identify.ts';
+export { initialize } from './initialize.ts';
+export type { InitializeResult } from './initialize.ts';
+export { identify } from './identify.ts';
+export type { IdentifyResult } from './identify.ts';
 export { variation } from './variation.ts';
 export {
   default as Context,
   getCurrentContext,
-  type ContextOptions,
-  type InitStatus,
-  type OnStatusChange,
-  type OnError,
+  removeCurrentContext,
+} from './context.ts';
+export type {
+  ContextOptions,
+  InitStatus,
+  OnStatusChange,
+  OnError,
 } from './context.ts';
