@@ -1,5 +1,21 @@
 # Changelog
 
+## Release (2026-02-27)
+
+* ember-launch-darkly 5.3.2 (patch)
+
+#### :house: Internal
+* `ember-launch-darkly`
+  * [#707](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/707) Prepare Release v5.3.1 ([@github-actions[bot]](https://github.com/apps/github-actions))
+  * [#708](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/708) trigger release ([@aklkv](https://github.com/aklkv))
+* Other
+  * [#706](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/706) fix: release-plan refs ([@aklkv](https://github.com/aklkv))
+  * [#705](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/705) fix: regenerate release-plan ([@aklkv](https://github.com/aklkv))
+
+#### Committers: 2
+- Alexey Kulakov ([@aklkv](https://github.com/aklkv))
+- GitHub Actions [Bot] ([@github-actions](https://github.com/apps/github-actions))
+
 ## Release (2026-02-26)
 
 * ember-launch-darkly 5.3.1 (patch)

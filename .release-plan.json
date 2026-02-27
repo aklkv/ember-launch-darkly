@@ -2,8 +2,8 @@
   "solution": {
     "ember-launch-darkly": {
       "impact": "patch",
-      "oldVersion": "5.3.0",
-      "newVersion": "5.3.1",
+      "oldVersion": "5.3.1",
+      "newVersion": "5.3.2",
       "tagName": "latest",
       "constraints": [
         {
@@ -14,5 +14,5 @@
       "pkgJSONPath": "./ember-launch-darkly/package.json"
     }
   },
-  "description": "## Release (2026-02-26)\n\n* ember-launch-darkly 5.3.1 (patch)\n\n#### :house: Internal\n* `ember-launch-darkly`\n  * [#708](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/708) trigger release ([@aklkv](https://github.com/aklkv))\n* Other\n  * [#706](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/706) fix: release-plan refs ([@aklkv](https://github.com/aklkv))\n  * [#705](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/705) fix: regenerate release-plan ([@aklkv](https://github.com/aklkv))\n\n#### Committers: 1\n- Alexey Kulakov ([@aklkv](https://github.com/aklkv))\n"
+  "description": "## Release (2026-02-27)\n\n* ember-launch-darkly 5.3.2 (patch)\n\n#### :house: Internal\n* `ember-launch-darkly`\n  * [#707](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/707) Prepare Release v5.3.1 ([@github-actions[bot]](https://github.com/apps/github-actions))\n  * [#708](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/708) trigger release ([@aklkv](https://github.com/aklkv))\n* Other\n  * [#706](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/706) fix: release-plan refs ([@aklkv](https://github.com/aklkv))\n  * [#705](https://github.com/adopted-ember-addons/ember-launch-darkly/pull/705) fix: regenerate release-plan ([@aklkv](https://github.com/aklkv))\n\n#### Committers: 2\n- Alexey Kulakov ([@aklkv](https://github.com/aklkv))\n- GitHub Actions [Bot] ([@github-actions](https://github.com/apps/github-actions))\n"
 }
