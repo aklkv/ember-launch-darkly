@@ -1,6 +1,4 @@
 import { module, test } from 'qunit';
-import window from 'ember-window-mock';
-import { setupWindowMock } from 'ember-window-mock/test-support';
 
 import Context, {
   setCurrentContext,
@@ -8,8 +6,7 @@ import Context, {
   setPersistedFlags,
 } from 'ember-launch-darkly/-sdk/context';
 
-module('Unit | SDK | Context', function (hooks) {
-  setupWindowMock(hooks);
+module('Unit | SDK | Context', function () {
   test('constructor', function (assert) {
     let context = new Context({ flags: {} });
     assert.strictEqual(
@@ -169,7 +166,7 @@ module('Unit | SDK | Context', function (hooks) {
 
   module('#persistence', function (innerHooks) {
     innerHooks.afterEach(function () {
-      window.localStorage.removeItem('ember-launch-darkly');
+      localStorage.removeItem('ember-launch-darkly');
     });
 
     test('#persist / persisted', function (assert) {
@@ -184,7 +181,7 @@ module('Unit | SDK | Context', function (hooks) {
     });
 
     test('#setPersistedFlags', function (assert) {
-      window.localStorage.setItem(
+      localStorage.setItem(
         'ember-launch-darkly',
         JSON.stringify({ foo: true, bar: false }),
       );

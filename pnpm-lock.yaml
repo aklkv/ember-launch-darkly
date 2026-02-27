@@ -36,9 +36,6 @@ importers:
       decorator-transforms:
         specifier: ^2.3.1
         version: 2.3.1(@babel/core@7.29.0)
-      ember-window-mock:
-        specifier: ^1.0.2
-        version: 1.0.2(339cdbc3394900937003a4b0ce07ee7b)
     devDependencies:
       '@babel/core':
         specifier: ^7.29.0
@@ -3515,9 +3512,6 @@ packages:
   ember-try@3.0.0:
     resolution: {integrity: sha512-ZYVKYWMnrHSD3vywo7rV76kPCOC9ATIEnGGG/PEKfCcFE0lB26jltRDnOrhORfLKq0JFp62fFxC/4940U+MwRQ==}
     engines: {node: 16.* || >= 18.*}
-
-  ember-window-mock@1.0.2:
-    resolution: {integrity: sha512-05qmab/YLHwg3Pn+NfQh7PwGY2H1GimxhNKxEoBX6/H3aMGmgwk9rOsV7fFV1PjZrq/V6op+BIqSfObw35psHg==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -11600,15 +11594,6 @@ snapshots:
       walk-sync: 2.2.0
     transitivePeerDependencies:
       - encoding
-      - supports-color
-
-  ember-window-mock@1.0.2(339cdbc3394900937003a4b0ce07ee7b):
-    dependencies:
-      '@embroider/addon-shim': 1.10.2
-      '@embroider/macros': 1.20.0(339cdbc3394900937003a4b0ce07ee7b)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
       - supports-color
 
   emoji-regex@8.0.0: {}

@@ -1,7 +1,6 @@
 import { isNone } from '@ember/utils';
 import { tracked } from '@glimmer/tracking';
 import { TrackedMap } from 'tracked-built-ins';
-import window from 'ember-window-mock';
 import type {
   LDClient,
   LDEvaluationDetail,
