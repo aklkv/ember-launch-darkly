@@ -1,4 +1,3 @@
-import { isNone } from '@ember/utils';
 import { warn } from '@ember/debug';
 
 import * as LDClient from 'launchdarkly-js-client-sdk';
@@ -100,7 +99,7 @@ export function shouldUpdateFlag(
   }
 
   if (streamingConfig && typeof streamingConfig === 'object') {
-    if (!isNone(streamingConfig.allExcept)) {
+    if (streamingConfig.allExcept != null) {
       if (Array.isArray(streamingConfig.allExcept)) {
         return !streamingConfig.allExcept.includes(key);
       }
@@ -177,7 +176,7 @@ export async function initialize(
     ...rest,
   };
 
-  if (options.bootstrap === 'localFlags' && !isNone(localFlags)) {
+  if (options.bootstrap === 'localFlags' && localFlags != null) {
     options.bootstrap = localFlags;
   }
 

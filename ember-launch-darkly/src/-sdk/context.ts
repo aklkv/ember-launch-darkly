@@ -1,4 +1,3 @@
-import { isNone } from '@ember/utils';
 import { tracked } from '@glimmer/tracking';
 import { TrackedMap } from 'tracked-built-ins';
 import type {
@@ -149,7 +148,7 @@ class Context<ELDFlagSet extends LDFlagSet> {
   }
 
   get<T>(key: keyof ELDFlagSet, defaultValue?: T | null): T {
-    if (!this._flags.has(key) && !isNone(defaultValue)) {
+    if (!this._flags.has(key) && defaultValue != null) {
       return defaultValue;
     }
 
@@ -175,7 +174,7 @@ class Context<ELDFlagSet extends LDFlagSet> {
   }
 
   get isLocal() {
-    return isNone(this.client);
+    return this.client == null;
   }
 
   /**
